@@ -1,0 +1,186 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+typedef struct Node {
+    int data;
+    struct Node* prev;
+    struct Node* next;
+} Node;
+
+typedef struct DoubleLinkedList {
+    Node* head;
+} DoubleLinkedList;
+
+void initList(DoubleLinkedList* list) {
+    list->head = NULL;
+}
+
+void push_front(DoubleLinkedList* list, int data) {
+    Node* new_node = (Node*)malloc(sizeof(Node));
+    new_node->data = data;
+    new_node->prev = NULL;
+    new_node->next = list->head;
+
+    if (list->head != NULL) {
+        list->head->prev = new_node;
+    }
+
+    list->head = new_node;
+}
+
+void push_back(DoubleLinkedList* list, int data) {
+    Node* new_node = (Node*)malloc(sizeof(Node));
+    new_node->data = data;
+    new_node->next = NULL;
+
+    if (list->head == NULL) {
+        new_node->prev = NULL;
+        list->head = new_node;
+        return;
+    }
+
+    Node* temp = list->head;
+    while (temp->next != NULL) {
+        temp = temp->next;
+    }
+
+    temp->next = new_node;
+    new_node->prev = temp;
+}
+
+void push_mid(DoubleLinkedList* list, int data) {
+    Node* new_node = (Node*)malloc(sizeof(Node));
+    new_node->data = data;
+    
+    if (list->head == NULL) {
+        new_node->prev = NULL;
+        new_node->next = NULL;
+        list->head = new_node;
+        return;
+    }
+
+    Node* slow = list->head;
+    Node* fast = list->head;
+
+    while (fast != NULL && fast->next != NULL) {
+        slow = slow->next;
+        fast = fast->next->next;
+    }
+
+    new_node->prev = slow->prev;
+    new_node->next = slow;
+    if (slow->prev != NULL) {
+        slow->prev->next = new_node;
+    }
+    slow->prev = new_node;
+
+    if (new_node->prev == NULL) {
+        list->head = new_node;
+    }
+}
+
+void delete_front(DoubleLinkedList* list) {
+    if (list->head == NULL) {
+        printf("List is empty!\n");
+        return;
+    }
+
+    Node* temp = list->head;
+    list->head = list->head->next;
+
+    if (list->head != NULL) {
+        list->head->prev = NULL;
+    }
+
+    free(temp);
+}
+
+void delete_back(DoubleLinkedList* list) {
+    if (list->head == NULL) {
+        printf("List is empty!\n");
+        return;
+    }
+
+    Node* temp = list->head;
+    while (temp->next != NULL) {
+        temp = temp->next;
+    }
+
+    if (temp->prev != NULL) {
+        temp->prev->next = NULL;
+    } else {
+        list->head = NULL;
+    }
+
+    free(temp);
+}
+
+void delete_mid(DoubleLinkedList* list) {
+    if (list->head == NULL) {
+        printf("List is empty!\n");
+        return;
+    }
+
+    Node* slow = list->head;
+    Node* fast = list->head;
+
+    while (fast != NULL && fast->next != NULL) {
+        slow = slow->next;
+        fast = fast->next->next;
+    }
+
+    if (slow->prev != NULL) {
+        slow->prev->next = slow->next;
+    }
+
+    if (slow->next != NULL) {
+        slow->next->prev = slow->prev;
+    }
+
+    if (slow == list->head) {
+        list->head = slow->next;
+    }
+
+    free(slow);
+}
+
+void print_list(DoubleLinkedList* list) {
+    Node* temp = list->head;
+    while (temp != NULL) {
+        printf("%d ", temp->data);
+        temp = temp->next;
+    }
+    printf("\n");
+}
+
+int main() {
+    DoubleLinkedList list;
+    initList(&list);
+
+    push_front(&list, 1);
+    push_back(&list, 2);
+    push_back(&list, 3);
+    push_back(&list, 4);
+    push_back(&list, 5);
+
+    printf("List after adding elements: ");
+    print_list(&list);
+
+    push_mid(&list, 10);
+    printf("List after pushing in the middle: ");
+    print_list(&list);
+
+    delete_front(&list);
+    printf("List after deleting front: ");
+    print_list(&list);
+
+    delete_back(&list);
+    printf("List after deleting back: ");
+    print_list(&list);
+
+    delete_mid(&list);
+    printf("List after deleting middle: ");
+    print_list(&list);
+
+    return 0;
+}
